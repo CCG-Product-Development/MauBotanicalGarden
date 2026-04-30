@@ -2,7 +2,9 @@
 
 import { useState } from "react";
 import Link from "next/link";
+import { Minus, Plus } from "lucide-react";
 import { products, medicinalPlants } from "@/lib/products";
+import { useCart } from "@/components/cart-context";
 import { cn } from "@/lib/utils";
 
 const categories = [
@@ -17,6 +19,7 @@ const categories = [
 
 export default function ShopPage() {
   const [activeCategory, setActiveCategory] = useState("all");
+  const { cart, addToCart, updateQty } = useCart();
 
   const filteredProducts =
     activeCategory === "all"
@@ -82,31 +85,62 @@ export default function ShopPage() {
           </div>
 
           {/* Products Grid */}
-          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-            {filteredProducts.map((product) => (
-              <Link
-                key={product.id}
-                href={`/shop/${product.id}`}
-                className="group"
-              >
-                <div className="bg-white border border-border rounded-xl p-4 transition-shadow hover:shadow-lg">
-                  <div className="aspect-square relative mb-4 bg-muted rounded-lg overflow-hidden flex items-center justify-center">
-                    <div className="w-24 h-32 bg-primary/10 rounded-lg flex flex-col items-center justify-center p-2">
-                      <span className="text-[10px] text-primary font-bold uppercase tracking-wider text-center">
-                        {product.name}
-                      </span>
-                      <span className="text-[8px] text-primary/60 mt-1">DRINK</span>
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 pb-24">
+            {filteredProducts.map((product) => {
+              const qty = cart[product.id] || 0;
+              return (
+                <div
+                  key={product.id}
+                  className="bg-white border border-border rounded-xl p-4 transition-shadow hover:shadow-lg flex flex-col"
+                >
+                  <Link href={`/shop/${product.id}`} className="group block">
+                    <div className="aspect-square relative mb-4 bg-muted rounded-lg overflow-hidden flex items-center justify-center">
+                      <div className="w-24 h-32 bg-primary/10 rounded-lg flex flex-col items-center justify-center p-2">
+                        <span className="text-[10px] text-primary font-bold uppercase tracking-wider text-center">
+                          {product.name}
+                        </span>
+                        <span className="text-[8px] text-primary/60 mt-1">
+                          {product.category.toUpperCase()}
+                        </span>
+                      </div>
                     </div>
+                    <h3 className="text-sm font-medium text-foreground text-center mb-1">
+                      {product.name}
+                    </h3>
+                  </Link>
+
+                  <div className="flex items-center justify-between mt-auto pt-2">
+                    <span className="text-sm font-semibold text-foreground">
+                      ${product.price.toFixed(2)}
+                    </span>
+                    {qty > 0 ? (
+                      <div className="flex items-center gap-1.5">
+                        <button
+                          onClick={() => updateQty(product.id, -1)}
+                          className="w-7 h-7 border border-border rounded-md flex items-center justify-center hover:bg-muted transition-colors"
+                        >
+                          <Minus className="w-3 h-3" />
+                        </button>
+                        <span className="text-sm font-semibold min-w-[16px] text-center">{qty}</span>
+                        <button
+                          onClick={() => updateQty(product.id, 1)}
+                          className="w-7 h-7 border border-border rounded-md flex items-center justify-center hover:bg-muted transition-colors"
+                        >
+                          <Plus className="w-3 h-3" />
+                        </button>
+                      </div>
+                    ) : (
+                      <button
+                        onClick={() => addToCart(product.id)}
+                        className="bg-primary text-white text-xs font-semibold px-3 py-1.5 rounded-lg hover:bg-primary/90 transition-colors"
+                      >
+                        Add to cart
+                      </button>
+                    )}
                   </div>
-                  <h3 className="text-sm font-medium text-foreground text-center mb-1">
-                    {product.name}
-                  </h3>
-                  <p className="text-sm text-muted-foreground text-center">
-                    ${product.price.toFixed(2)}
-                  </p>
                 </div>
-              </Link>
-            ))}
+              );
+            })}
           </div>
         </div>
       </div>

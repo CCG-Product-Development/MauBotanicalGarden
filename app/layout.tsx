@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Inter, Playfair_Display } from "next/font/google";
+import Script from "next/script";
 import "./globals.css";
 import Header from "@/components/header";
 import Footer from "@/components/footer";
@@ -28,6 +29,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={`${inter.variable} ${playfair.variable} font-sans antialiased`}>
+        <Script src="https://checkout.flutterwave.com/v3.js" strategy="afterInteractive" />
         <div className="min-h-screen flex flex-col">
           <Header />
           <main className="flex-1">{children}</main>

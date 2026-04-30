@@ -5,6 +5,7 @@ import { useParams, useRouter } from "next/navigation";
 import Link from "next/link";
 import { ChevronLeft, ChevronRight, Star, Minus, Plus, ChevronDown } from "lucide-react";
 import { getProductById, products } from "@/lib/products";
+import { useCart } from "@/components/cart-context";
 import { cn } from "@/lib/utils";
 
 const reviews = [
@@ -42,6 +43,7 @@ const faqs = [
 export default function ProductDetailPage() {
   const params = useParams();
   const router = useRouter();
+  const { addToCart } = useCart();
   const [quantity, setQuantity] = useState(1);
   const [selectedSize, setSelectedSize] = useState("20 Bags");
   const [expandedSections, setExpandedSections] = useState<string[]>(["keyPoints", "ingredients"]);
@@ -184,7 +186,10 @@ export default function ProductDetailPage() {
                 </button>
               </div>
 
-              <button className="flex-1 bg-primary text-white px-6 py-3 rounded-lg font-medium hover:bg-primary-dark transition-colors">
+              <button
+                onClick={() => addToCart(product.id, quantity)}
+                className="flex-1 bg-primary text-white px-6 py-3 rounded-lg font-medium hover:bg-primary/90 transition-colors"
+              >
                 Add to cart
               </button>
             </div>
