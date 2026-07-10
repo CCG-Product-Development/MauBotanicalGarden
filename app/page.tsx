@@ -1,17 +1,23 @@
+import { Header } from "@/components/header"
+import { Footer } from "@/components/footer"
 import { HeroSection } from "@/components/home/hero-section"
-import { CategoriesSection } from "@/components/home/categories-section"
-import { FeaturedSection } from "@/components/home/featured-section"
-import { TestimonialBanner } from "@/components/home/testimonial-banner"
-import { CTASection } from "@/components/home/cta-section"
+import { NatureSection } from "@/components/home/nature-section"
+import { ProductsSection } from "@/components/home/products-section"
+import { AboutSection } from "@/components/home/about-section"
+import { MissionSection } from "@/components/home/mission-section"
 
 export default function HomePage() {
   return (
-    <>
-      <HeroSection />
-      <FeaturedSection />
-      <CategoriesSection />
-      <TestimonialBanner />
-      <CTASection />
-    </>
+    <div className="min-h-screen bg-natural-cream">
+      <Header />
+      <main>
+        <HeroSection />
+        <NatureSection />
+        <ProductsSection />
+        <AboutSection />
+        <MissionSection />
+      </main>
+      <Footer />
+    </div>
   )
 }
