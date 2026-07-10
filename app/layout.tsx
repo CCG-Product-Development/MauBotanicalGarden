@@ -1,4 +1,5 @@
 import type { Metadata } from 'next'
+import Script from 'next/script'
 import { Playfair_Display, Libre_Baskerville, Cormorant_Garamond } from 'next/font/google'
 import { Analytics } from '@vercel/analytics/next'
 import { CartProvider } from '@/lib/cart-context'
@@ -51,6 +52,8 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={`${playfair.variable} ${libreBaskerville.variable} ${cormorantGaramond.variable} font-body antialiased`}>
+        {/* Required by lib/use-checkout.ts — removing this breaks checkout silently. */}
+        <Script src="https://checkout.flutterwave.com/v3.js" strategy="afterInteractive" />
         <CartProvider>
           {children}
         </CartProvider>

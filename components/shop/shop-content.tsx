@@ -3,7 +3,8 @@
 import Link from "next/link"
 import Image from "next/image"
 import { Truck } from "lucide-react"
-import { products, categories, getProductsByCategory } from "@/lib/products"
+import { categories, getProductsByCategory } from "@/lib/products"
+import { priceFor } from "@/lib/pricing"
 
 const medicalPlants = [
   "Ajuga Remota", "Artemisia annua", "Avocado", "California Poppy", "Celery", "Chamomile", 
@@ -57,11 +58,11 @@ export function ShopContent() {
               {/* Product Grid */}
               <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
                 {categoryProducts.map((product) => {
-                  const isTeaProduct = product.category.includes('teas')
-                  const price = isTeaProduct 
-                    ? { usd: 6, kes: 775 }
-                    : { usd: 1.29, kes: 167 }
-                  
+                  const price = {
+                    kes: priceFor(product.category, 'KES'),
+                    usd: priceFor(product.category, 'USD'),
+                  }
+
                   return (
                     <Link
                       key={product.id}

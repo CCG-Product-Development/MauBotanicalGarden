@@ -7,6 +7,7 @@ import { Minus, Plus, ShoppingCart, Check } from "lucide-react"
 import type { Product } from "@/lib/products"
 import { categories } from "@/lib/products"
 import { useCart } from "@/lib/cart-context"
+import { priceFor } from "@/lib/pricing"
 import { Button } from "@/components/ui/button"
 
 interface ProductDetailProps {
@@ -24,11 +25,11 @@ export function ProductDetail({ product }: ProductDetailProps) {
 
   const categoryName = categories.find(c => c.id === product.category)?.name || 'Products'
   const isTeaProduct = product.category.includes('teas')
-  
-  // Pricing: Teas = KES 775 / $6, Herbs & Spices = $1.29
-  const price = isTeaProduct 
-    ? { usd: 6, kes: 775 }
-    : { usd: 1.29, kes: 167 }
+
+  const price = {
+    kes: priceFor(product.category, 'KES'),
+    usd: priceFor(product.category, 'USD'),
+  }
 
   const handleAddToCart = () => {
     addToCart(product)

@@ -1256,4 +1256,4 @@ export const categories = [
   { id: 'true-teas', name: 'True Teas' },
   { id: 'herbs', name: 'Herbs' },
   { id: 'spices', name: 'Spices' }
-]
+] satisfies { id: Product['category']; name: string }[]

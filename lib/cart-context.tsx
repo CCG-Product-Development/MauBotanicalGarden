@@ -2,6 +2,7 @@
 
 import { createContext, useContext, useState, useEffect, type ReactNode } from "react"
 import type { Product } from "./products"
+import { priceFor, type Currency } from "./pricing"
 
 interface CartItem {
   product: Product
@@ -15,7 +16,7 @@ interface CartContextType {
   updateQuantity: (productId: string, quantity: number) => void
   clearCart: () => void
   totalItems: number
-  totalPrice: number
+  totalFor: (currency: Currency) => number
 }
 
 const CartContext = createContext<CartContextType | undefined>(undefined)
@@ -80,11 +81,8 @@ export function CartProvider({ children }: { children: ReactNode }) {
 
   const totalItems = items.reduce((sum, item) => sum + item.quantity, 0)
 
-  const totalPrice = items.reduce((sum, item) => {
-    const isTeaProduct = item.product.category.includes('teas')
-    const price = isTeaProduct ? 6 : 1.29
-    return sum + price * item.quantity
-  }, 0)
+  const totalFor = (currency: Currency) =>
+    items.reduce((sum, item) => sum + priceFor(item.product.category, currency) * item.quantity, 0)
 
   return (
     <CartContext.Provider
@@ -95,7 +93,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
         updateQuantity,
         clearCart,
         totalItems,
-        totalPrice,
+        totalFor,
       }}
     >
       {children}

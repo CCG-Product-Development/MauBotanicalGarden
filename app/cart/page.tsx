@@ -1,22 +1,22 @@
 "use client"
 
+import { useState } from "react"
 import { Header } from "@/components/header"
 import { Footer } from "@/components/footer"
 import { useCart } from "@/lib/cart-context"
+import { useCheckout } from "@/lib/use-checkout"
+import { CURRENCIES, formatPrice, priceFor, type Currency } from "@/lib/pricing"
 import { Button } from "@/components/ui/button"
 import { Minus, Plus, Trash2, ShoppingBag } from "lucide-react"
 import Image from "next/image"
 import Link from "next/link"
 
 export default function CartPage() {
-  const { items, removeFromCart, updateQuantity, totalPrice, clearCart } = useCart()
+  const { items, removeFromCart, updateQuantity, totalFor, clearCart } = useCart()
+  const { pay, isPaying, error } = useCheckout()
 
-  const getPrice = (category: string) => {
-    const isTeaProduct = category.includes('teas')
-    return isTeaProduct 
-      ? { usd: 6, kes: 775 }
-      : { usd: 1.29, kes: 167 }
-  }
+  const [currency, setCurrency] = useState<Currency>("KES")
+  const [email, setEmail] = useState("")
 
   return (
     <div className="min-h-screen bg-natural-cream">
@@ -41,9 +41,9 @@ export default function CartPage() {
             {/* Cart Items */}
             <div className="lg:col-span-2 space-y-4">
               {items.map((item) => {
-                const price = getPrice(item.product.category)
+                const unitPrice = priceFor(item.product.category, currency)
                 return (
-                  <div 
+                  <div
                     key={item.product.id}
                     className="bg-natural-cream border border-border rounded-xl p-4 flex gap-4"
                   >
@@ -74,7 +74,7 @@ export default function CartPage() {
                         Code: {item.product.productCode}
                       </p>
                       <p className="font-accent font-semibold text-olive-leaf">
-                        KES {price.kes} / ${price.usd.toFixed(2)}
+                        {formatPrice(unitPrice, currency)}
                       </p>
                     </div>
 
@@ -124,31 +124,63 @@ export default function CartPage() {
                 <h2 className="text-xl font-display text-olive-leaf mb-4">Order Summary</h2>
                 
                 <div className="space-y-3 mb-6">
-                  {items.map((item) => {
-                    const price = getPrice(item.product.category)
-                    return (
-                      <div key={item.product.id} className="flex justify-between text-sm font-body">
-                        <span className="text-deep-charcoal">
-                          {item.product.name} x {item.quantity}
-                        </span>
-                        <span className="text-evergreen">
-                          ${(price.usd * item.quantity).toFixed(2)}
-                        </span>
-                      </div>
-                    )
-                  })}
+                  {items.map((item) => (
+                    <div key={item.product.id} className="flex justify-between text-sm font-body">
+                      <span className="text-deep-charcoal">
+                        {item.product.name} x {item.quantity}
+                      </span>
+                      <span className="text-evergreen">
+                        {formatPrice(priceFor(item.product.category, currency) * item.quantity, currency)}
+                      </span>
+                    </div>
+                  ))}
                 </div>
 
-                <div className="border-t border-border pt-4 mb-6">
+                <div className="flex gap-2 mb-4">
+                  {CURRENCIES.map((code) => (
+                    <button
+                      key={code}
+                      onClick={() => setCurrency(code)}
+                      className={`flex-1 py-2 rounded-lg border font-accent text-sm transition-colors ${
+                        currency === code
+                          ? "bg-olive-leaf text-natural-cream border-olive-leaf"
+                          : "border-border text-deep-charcoal hover:bg-olive-leaf/10"
+                      }`}
+                    >
+                      Pay in {code}
+                    </button>
+                  ))}
+                </div>
+
+                <div className="border-t border-border pt-4 mb-4">
                   <div className="flex justify-between font-accent font-semibold">
                     <span className="text-deep-charcoal">Total</span>
-                    <span className="text-olive-leaf">${totalPrice.toFixed(2)}</span>
+                    <span className="text-olive-leaf">{formatPrice(totalFor(currency), currency)}</span>
                   </div>
                   <p className="text-xs text-evergreen mt-1">Free shipping on all orders</p>
                 </div>
 
-                <Button className="w-full bg-sunroot-gold hover:bg-sunroot-gold/90 text-deep-charcoal font-accent font-semibold">
-                  Proceed to Checkout
+                <input
+                  type="email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  placeholder="your@email.com"
+                  aria-label="Email for receipt"
+                  className="w-full border border-border rounded-lg px-4 py-2.5 mb-3 text-sm font-body focus:outline-none focus:ring-2 focus:ring-olive-leaf"
+                />
+
+                {error && (
+                  <p role="alert" className="text-sm text-red-600 font-body mb-3">
+                    {error}
+                  </p>
+                )}
+
+                <Button
+                  onClick={() => pay(email, currency)}
+                  disabled={!email || isPaying}
+                  className="w-full bg-sunroot-gold hover:bg-sunroot-gold/90 text-deep-charcoal font-accent font-semibold disabled:opacity-50"
+                >
+                  {isPaying ? "Processing…" : `Pay ${formatPrice(totalFor(currency), currency)}`}
                 </Button>
 
                 <Link href="/shop" className="block mt-4">
